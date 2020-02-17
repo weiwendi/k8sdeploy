@@ -1,0 +1,35 @@
+- name: Upgrade and install packages
+  hosts: k8sall
+  tasks:
+  - name: Install epel-release and yum-utils packages
+    yum: 
+      name: ['epel-release', 'yum-utils']
+      state: present
+  - name: Add docker-ce repo
+    shell: yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+  - name: Upgrade all yum packages with ansible
+    yum: 
+      name: "*"
+      state: latest
+  - name: Install new packages
+    yum: 
+      name: ['conntrack', 'ipvsadm', 'ipset', 'iptables-services', 'libseccomp', 'jq', 'sysstat', 'curl', 'wget', 'net-tools', 'telnet', 'vim', 'chrony', 'docker-ce-19.03.4-3.el7']
+      state: present
+# Start chronyd service,Set clock synchronization
+  - name: Set clock synchronization
+    service:
+      name: chronyd
+      state: started
+# Start docker service
+  - name: Create /etc/docker directory
+    file:
+      path: /etc/docker
+      state: directory
+  - name: Copy docker daemon.json file
+    copy:
+      src: config/docker/daemon.json
+      dest: /etc/docker/daemon.json
+  - name: Started docker service
+    service:
+      name: docker
+      state: started

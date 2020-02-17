@@ -1,0 +1,20 @@
+- name: Upgrade and install packages
+  hosts: k8sall
+  tasks:
+  - name: Add kubernetes-el7 repo
+    copy:
+      src: config/yum/kubernetes.repo
+      dest: /etc/yum.repos.d/kubernetes.repo
+  - name: Install kubeadm packages
+    yum: 
+      name: ['kubeadm-1.17.2-0', 'kubelet-1.17.2-0', 'kubectl-1.17.2']
+      state: present
+# Start kubelet service
+  - name: Create /var/lib/kubelet directory
+    file:
+      path: /var/lib/kubelet
+      state: directory
+  - name: Started kubelet service
+    service:
+      name: kubelet
+      state: started

@@ -1,0 +1,27 @@
+- name: Configure etcd cluster
+  hosts: k8smaster
+  vars:
+    - etcd_name: "{{ ansible_nodename }}"
+    - etcd_ip: "{{ ansible_default_ipv4.address }}"
+  tasks:
+  - name: create etcd config dir & work dir
+    file: path={{ item }} state=directory
+    with_items:
+    - /etc/etcd
+    - /var/lib/etcd
+  - name: copy etcd.conf
+    template:
+      src: etcd_conf.j2
+      dest: /etc/etcd/etcd.conf
+  - name: copy etcd.service
+    copy: src=etcd.service dest=/usr/lib/systemd/system/
+  - name: create tls dir
+    file: path=/etc/kubernetes/ssl/ state=directory
+  - name: copy tls
+    copy: src={{ item }} dest=/etc/kubernetes/ssl/
+    with_items:
+    - /root/software/tls/kubernetes-key.pem
+    - /root/software/tls/kubernetes.pem
+    - /root/software/tls/ca.pem 
+  - name: start etcd cluster
+    service: name=etcd.service state=started

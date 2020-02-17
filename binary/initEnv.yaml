@@ -1,0 +1,48 @@
+- name: Initialization environment
+  hosts: k8sm
+  tasks:
+# Turn off the firewall
+  - name: Stop firewalld
+    service: 
+      name: firewalld 
+      state: stopped
+# The situation iptables rule
+  - name: Enable iptables
+    service:
+      name: iptables
+      state: started
+  - name: Clean iptables
+    shell: iptables -F && iptables -X && iptables -F -t nat && iptables -X -t nat && iptables -P FORWARD ACCEPT
+  - name: Save iptables rules
+    shell: service iptables save
+# Disable Selinux
+  - name: Change selinux config file
+    lineinfile: 
+      path: /etc/selinux/config 
+      regexp: '^SELINUX=enforcing' 
+      line: SELINUX=disabled
+  - name: Exec setenforce 0 command
+    shell: setenforce 0
+# Disable Swap
+  - name: Exec swapoff command
+    shell: swapoff -a
+  - name: Change fstab file
+    replace:
+      path: /etc/fstab
+      regexp: '(/dev/mapper/centos-swap)'
+      replace: '#\1'
+# Set the time zone Shanghai
+  - name: Set the time zone Shanghai
+    shell: timedatectl set-timezone Asia/Shanghai
+# Set system parameters
+  - name: copy system parameters config file
+    copy:
+      src: config/system/kubernetes.conf
+      dest: /etc/sysctl.d/kubernetes.conf
+  - name: Load system parameters
+    shell: sysctl -p /etc/sysctl.d/kubernetes.conf
+# Copy hosts file
+  - name: Copy hosts file
+    copy:
+      src: config/system/hosts
+      dest: /etc/hosts

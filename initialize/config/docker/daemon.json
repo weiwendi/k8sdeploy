@@ -1,0 +1,6 @@
+{
+  "log-opts": {
+    "max-size": "20m"
+  },
+   "exec-opts": ["native.cgroupdriver=systemd"]
+}

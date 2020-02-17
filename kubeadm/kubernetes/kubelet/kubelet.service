@@ -1,0 +1,18 @@
+[Unit]
+Description=kubelet: The Kubernetes Node Agent
+Documentation=https://kubernetes.io/docs/
+
+[Service]
+ExecStart=/usr/bin/kubelet \
+    --address={{ kubelet_ip }} \
+    --pod-infra-container-image=registry.cn-hangzhou.aliyuncs.com/weiwendi/pause-amd64:3.0 \
+    --cgroup-driver=systemd \
+    --cluster-dns=10.254.0.2 \
+    --log-dir=/var/log/kubelet \
+    --log-file=kubelet.log \
+Restart=always
+StartLimitInterval=0
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

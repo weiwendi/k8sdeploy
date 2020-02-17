@@ -1,0 +1,7 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+192.168.0.11 km01
+192.168.0.12 km02
+192.168.0.13 km03
+192.168.0.21 kn01
+192.168.0.22 kn02
