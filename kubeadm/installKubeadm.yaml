@@ -1,5 +1,5 @@
 - name: Upgrade and install packages
-  hosts: k8sall
+  hosts: other
   tasks:
   - name: Add kubernetes-el7 repo
     copy:
