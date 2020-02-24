@@ -1,11 +1,35 @@
+#- name: Get ETCD Binary
+#  hosts: localhost
+#  tasks:
+#  - name: wget etcd binary
+#    shell: wget -P /tmp/ https://github.com/etcd-io/etcd/releases/download/v3.3.18/etcd-v3.3.18-linux-amd64.tar.gz & tar zxf /tmp/etcd-v3.3.18-linux-amd64.tar.gz -C /tmp/
+#
+# Distribute etcd binaries
+- name: Distribute etcd binaries
+  hosts: k8sm
+  tasks:
+  - name: wget etcd binary
+    copy:
+      src: '{{ item.src }}'
+      dest: '{{ item.dest }}'
+      mode: 0755
+    with_items:
+    - { src: '/tmp/etcd-v3.3.18-linux-amd64/etcd', dest: '/usr/local/bin/'}
+    - { src: '/tmp/etcd-v3.3.18-linux-amd64/etcdctl', dest: '/usr/local/bin/'}
+#
+# Distribute etcd config file and etcd.service file
 - name: Configure etcd cluster
-  hosts: k8smaster
+  hosts: k8sm
+# 
+# Automatically get each host IP
   vars:
     - etcd_name: "{{ ansible_nodename }}"
     - etcd_ip: "{{ ansible_default_ipv4.address }}"
   tasks:
-  - name: create etcd config dir & work dir
-    file: path={{ item }} state=directory
+  - name: create etcd config dir & work/data dir
+    file:
+      path: '{{ item }}'
+      state: directory
     with_items:
     - /etc/etcd
     - /var/lib/etcd
@@ -14,14 +38,24 @@
       src: etcd_conf.j2
       dest: /etc/etcd/etcd.conf
   - name: copy etcd.service
-    copy: src=etcd.service dest=/usr/lib/systemd/system/
-  - name: create tls dir
-    file: path=/etc/kubernetes/ssl/ state=directory
-  - name: copy tls
-    copy: src={{ item }} dest=/etc/kubernetes/ssl/
+    copy:
+      src: etcd.service
+      dest: /usr/lib/systemd/system/
+  - name: create pki dir
+    file:
+      path: /etc/kubernetes/pki/
+      state: directory
+  - name: copy private key
+    copy:
+      src: '{{ item.src }}'
+      dest: '{{ item.dest }}'
     with_items:
-    - /root/software/tls/kubernetes-key.pem
-    - /root/software/tls/kubernetes.pem
-    - /root/software/tls/ca.pem 
+    - { src: '../pki/etcd/etcd-key.pem', dest: '/etc/kubernetes/pki/' }
+    - { src: '../pki/etcd/etcd.pem', dest: '/etc/kubernetes/pki/' }
+    - { src: '../pki/ca.pem', dest: '/etc/kubernetes/pki/' }
   - name: start etcd cluster
-    service: name=etcd.service state=started
+    service:
+      name: etcd.service
+      daemon_reload: yes
+      state: started
+      enabled: yes

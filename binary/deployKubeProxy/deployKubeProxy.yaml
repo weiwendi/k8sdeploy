@@ -1,0 +1,46 @@
+- name: Deploy kubernetes cluster
+  hosts: k8sall
+# 
+# Automatically get each host IP
+  vars:
+    - listen_ip: "{{ ansible_default_ipv4.address }}"
+#
+# Deploy kubernetes master and node
+  tasks:
+  - name: Distribute kubernetes binaries
+    copy:
+      src: /tmp/kubernetes/server/bin/kube-proxy
+      dest: /usr/local/bin/
+      mode: 0755
+#
+# SCP kube-proxy kubeconfig file
+  - name: cp kube-proxy.kubeconfig
+    copy:
+      src: ../pki/kube-proxy/kube-proxy.kubeconfig
+      dest: /etc/kubernetes/
+#
+# SCP kube-proxy config file
+  - name: cp kube-proxy config file
+    template:
+      src: kube-proxy.conf.j2
+      dest: /etc/kubernetes/kube-proxy.config
+#
+# Create kube-proxy working directory
+  - name: mkdir /var/lib/kube-proxy
+    file:
+      path: /var/lib/kube-proxy
+      state: directory
+#
+# SCP service files
+  - name: cp kube-proxy.service file
+    copy:
+      src: kube-proxy.service
+      dest: /usr/lib/systemd/system/
+#
+# Started services
+  - name: started kube-proxy.service
+    service:
+      name: kube-proxy
+      daemon-reload: yes
+      state: started
+      enabled: yes

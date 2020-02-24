@@ -20,6 +20,7 @@
     service:
       name: chronyd
       state: started
+      enabled: yes
 # Start docker service
   - name: Create /etc/docker directory
     file:
@@ -33,3 +34,4 @@
     service:
       name: docker
       state: started
+      enabled: yes

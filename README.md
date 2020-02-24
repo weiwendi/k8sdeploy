@@ -1,6 +1,28 @@
 # k8sdeploy项目介绍
 
-k8sdeploy项目下有五个子目录：initialize、binary、kubeadm、haproxy和keepalived，顾名思义，每个目录都有特定功能：
+k8sdeploy项目下有七个子目录：addons、app、binary、haproxy、initialize、keepalived、kubeadm，顾名思义，每个目录都有其相关功能：
+
+* addons：Kubernetes集群的相关插件，在集群安装完成后，为了更好的管理集群。
+
+  * calico：网络插件， 集群安装完成后，需要执行此目录中的文件；
+
+* coredns：DNS服务，使用二进制包安装完成集群后，需要执行此目录中的文件；
+
+  * dashboard：集群部署完成后，执行此目录中的文件安装UI控制台；
+
+* ingress-nginx：将集群内的服务发布到集群外。
+
+* app：介绍部署应用程序时，使用到的程序。
+
+* binary：二进制包安装Kubernetes集群所需的Ansible Playbook脚本及依赖的文件，相关目录有：
+
+  * pki：生成证书需要的文件;
+  * deployEtcd：安装ETCD集群的脚本及相关文件，二进制环境需要自己部署ETCD；
+  * deployApiServer：安装Kube-apiserver组件的脚本及相关文件；
+  * deployControllerManager：安装Kube-controller-manager组件的脚本及相关文件；
+  * deployScheduler：安装Kube-scheduler组件的脚本及相关文件；
+  * deployKubelet：安装Kubelet组件的脚本及相关文件；
+  * deployKubeProxy：安装Kubeproxy组件的脚本及相关文件；
 
 * initialize：用来执行Kubernetes集群环境的初始化，包含两个Ansible Playbook文件（installPackages.yaml和initEnv.yaml）和一个config目录。
 
@@ -19,15 +41,13 @@ k8sdeploy项目下有五个子目录：initialize、binary、kubeadm、haproxy�
     ansible-playbook initEnv.yaml
     ```
 
-* binary目录下是二进制包安装Kubernetes集群所需的Ansible Playbook脚本及依赖的文件，其中也包含安装etcd集群；
-
 * kubeadm：Kubeadm工具安装高可用Kubernetes集群所需的文件：
 
   * installKubeadm.yaml：用来安装kubeadm、kubelet和kubectl
 
   * config：Kubernetes相关的yum源文件
 
-  * kubernetes：该目录存放了安装Kubernetes集群及组件相关的配置文件
+  * kubernetes：kubeadm安装Kubernetes集群的配置文件
 
   * 使用方法：
 
@@ -36,7 +56,7 @@ k8sdeploy项目下有五个子目录：initialize、binary、kubeadm、haproxy�
     ansible-playbook installKubeadm.yaml
     ```
 
-* haproxy：HaProxy的配置文件，可直接拷贝使用
+* haproxy：HaProxy的配置文件，可直接拷贝：
 
   * 使用方法：
 
@@ -44,7 +64,7 @@ k8sdeploy项目下有五个子目录：initialize、binary、kubeadm、haproxy�
     cp k8sdeploy/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg
     ```
 
-* keepalived：包含两个keepalived配置文件，一主一备需按角色拷贝，还包含一个检测脚本，在HaProxy异常时进行Keepalived的主从切换
+* keepalived：包含两个keepalived配置文件，一主一备需按角色拷贝，还包含一个检测脚本，检测到HaProxy异常时实现Keepalived的主从切换
 
   * 使用方法：
 
@@ -57,3 +77,4 @@ k8sdeploy项目下有五个子目录：initialize、binary、kubeadm、haproxy�
     cp k8sdeploy/keepalived/checkHaproxy.sh /etc/keepalived/checkHaproxy.sh
     ```
 
+### 

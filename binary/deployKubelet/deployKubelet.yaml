@@ -1,0 +1,56 @@
+- name: Deploy kubernetes cluster
+  hosts: k8sall
+# Automatically get each host IP
+  vars:
+    - listen_ip: "{{ ansible_default_ipv4.address }}"
+# 
+# Deploy kubernetes node
+  tasks:
+#
+# Download images
+#  - name: Pull needs images
+#    shell: docker pull registry.cn-hangzhou.aliyuncs.com/weiwendi/pause:3.1
+#
+# Distribute kubelet binary package
+  - name: Distribute kubernetes binaries
+    copy:
+      src: /tmp/kubernetes/server/bin/kubelet
+      dest: /usr/local/bin/
+      mode: 0755
+#
+# SCP bootstrap file.
+  - name: cp kubeconfig file
+    copy:
+      src: ../pki/kubectl/kubelet-bootstrap.kubeconfig
+      dest: /etc/kubernetes/
+#
+# SCP ca pem
+  - name: cp ca pem file
+    copy:
+      src: ../pki/ca.pem
+      dest: /etc/kubernetes/pki/
+#
+# SCP kubelet config file
+  - name: cp kubelet config file
+    template:
+      src: kubelet.config.j2
+      dest: /etc/kubernetes/kubelet.config
+#
+# SCP service files
+  - name: cp kubelet.service
+    copy:
+      src: kubelet.service
+      dest: /usr/lib/systemd/system/
+# 
+# Create kubelet work dir
+  - name: create work dir
+    file:
+      path: /var/lib/kubelet
+      state: directory
+# Started services
+  - name: started kubelet.service
+    service:
+      name: kubelet
+      daemon-reload: yes
+      state: started
+      enabled: yes

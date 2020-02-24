@@ -1,0 +1,45 @@
+- name: Deploy kubernetes cluster
+  hosts: k8sm
+# 
+# Automatically get each host IP
+  vars:
+    - listen_ip: "{{ ansible_default_ipv4.address }}"
+#
+# Deploy kubernetes master
+  tasks:
+  - name: Distribute kubernetes binaries
+    copy:
+      src: /tmp/kubernetes/server/bin/kube-apiserver
+      dest: /usr/local/bin/
+      mode: 0755
+#
+# SCP CA and private key
+  - name: cp ca and private key
+    copy:
+      src: '{{ item.src }}'
+      dest: '{{ item.dest }}'
+    with_items:
+    - {src: '../pki/api-server/kubernetes-key.pem', dest: '/etc/kubernetes/pki/'}
+    - {src: '../pki/api-server/kubernetes.pem', dest: '/etc/kubernetes/pki/'}
+    - {src: '../pki/ca.pem', dest: '/etc/kubernetes/pki/'}
+    - {src: '../pki/ca-key.pem', dest: '/etc/kubernetes/pki/'}
+#
+# SCP service files
+  - name: cp kube-apiserver.service file
+    template:
+      src: kube-apiserver.j2
+      dest: /usr/lib/systemd/system/kube-apiserver.service
+#
+# Create Kubernetes logs dir
+  - name: create /var/log/kubernetes
+    file:
+      path: /var/log/kubernetes
+      state: directory
+#
+# Started services
+  - name: started kube-apiserver
+    service:
+      name: kube-apiserver
+      daemon-reload: yes
+      state: started
+      enabled: yes

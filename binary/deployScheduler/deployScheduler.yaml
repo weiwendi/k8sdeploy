@@ -1,0 +1,30 @@
+- name: Deploy kubernetes cluster
+  hosts: k8sm
+# 
+# Deploy kubernetes master
+  tasks:
+  - name: Distribute kubernetes binaries
+    copy:
+      src: /tmp/kubernetes/server/bin/kube-scheduler
+      dest: /usr/local/bin/
+      mode: 0755
+#
+# SCP kubeconfig file.
+  - name: cp kubeconfig file
+    copy:
+      src: ../pki/kube-scheduler/kube-scheduler.kubeconfig
+      dest: /etc/kubernetes/
+#
+# SCP service files
+  - name: cp kube-scheduler.service
+    copy:
+      src: kube-scheduler.service
+      dest: /usr/lib/systemd/system/kube-scheduler.service
+#
+# Started services
+  - name: started kube-scheduler.service
+    service:
+      name: kube-scheduler
+      daemon-reload: yes
+      state: started
+      enabled: yes
