@@ -6,7 +6,7 @@ k8sdeploy项目下有七个子目录：addons、app、binary、haproxy、initial
 
   * calico：网络插件， 集群安装完成后，需要执行此目录中的文件；
 
-* coredns：DNS服务，使用二进制包安装完成集群后，需要执行此目录中的文件；
+  * coredns：DNS服务，使用二进制包安装完成集群后，需要执行此目录中的文件；
 
   * dashboard：集群部署完成后，执行此目录中的文件安装UI控制台；
 
