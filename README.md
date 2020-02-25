@@ -10,7 +10,7 @@ k8sdeploy项目下有七个子目录：addons、app、binary、haproxy、initial
 
   * dashboard：集群部署完成后，执行此目录中的文件安装UI控制台；
 
-* ingress-nginx：将集群内的服务发布到集群外。
+  * ingress-nginx：将集群内的服务发布到集群外。
 
 * app：介绍部署应用程序时，使用到的程序。
 
